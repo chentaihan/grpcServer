@@ -1,0 +1,12 @@
+syntax="proto3";
+
+package pb;
+
+message PingReq{
+  string msg = 1;
+
+}
+
+message PingResq{
+  string msg =1;
+}
