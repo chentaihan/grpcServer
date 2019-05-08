@@ -24,6 +24,20 @@ func (ping *Ping) Push(in *pb.PingReq) {
 	fmt.Println(string(data))
 }
 
+func (ping *Ping) Push1(in *pb.PingReq) {
+	out := &pb.PingResq{}
+	ping.Invoke(context.Background(), "/Ping/Push1", in, out)
+	data, _ := json.Marshal(out)
+	fmt.Println(string(data))
+}
+
+func (ping *Ping) Push2(in *pb.PingReq) {
+	out := &pb.PingResq{}
+	ping.Invoke(context.Background(), "/Ping/Push2", in, out)
+	data, _ := json.Marshal(out)
+	fmt.Println(string(data))
+}
+
 func main() {
 
 	flag.Parse()
@@ -43,6 +57,8 @@ func main() {
 			Msg: "ping " + strconv.Itoa(i),
 		}
 		ping.Push(in)
+		ping.Push1(in)
+		ping.Push2(in)
 	}
 
 }

@@ -12,3 +12,13 @@ type Ping struct {
 func (ping *Ping) Push(ctx context.Context, req *pb.PingReq) (*pb.PingResq, error) {
 	return &pb.PingResq{Msg: "pong:" + req.Msg}, nil
 }
+
+//接口：/Ping/Push
+func (ping *Ping) Push1(ctx context.Context, req *pb.PingReq) (*pb.PingResq, error) {
+	return &pb.PingResq{Msg: "pong:" + req.Msg}, nil
+}
+
+//接口：/Ping/Push
+func (ping *Ping) Push2(ctx context.Context, req *pb.PingReq) (*pb.PingResq, error) {
+	return &pb.PingResq{Msg: "pong:" + req.Msg}, nil
+}
