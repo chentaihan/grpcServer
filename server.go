@@ -4,6 +4,7 @@ import (
 	"context"
 	"google.golang.org/grpc"
 	"reflect"
+	"time"
 )
 
 type IRpcServer interface {
@@ -43,22 +44,23 @@ func (rpcReg *RpcServerMgr) Register(service IRpcServer) bool {
 
 func (rpcReg *RpcServerMgr) requestHandler(req interface{}, method *MethodInfo, service *InterfaceInfo) func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	return func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+		start := time.Now()
 		if err := dec(req); err != nil {
 			rpcReg.log.Error("requestHandler error, reason:", err.Error())
 			return nil, err
 		}
 		url := method.Url
-		//methodName := runtime.FuncForPC(method.Pointer()).Name()
 		if interceptor == nil {
 			args := []reflect.Value{reflect.ValueOf(method.Object), reflect.ValueOf(ctx), reflect.ValueOf(req)}
 			result := method.Method.Call(args)
 			resp := result[0].Interface()
 			err := result[1].Interface()
+			latency := float64(time.Now().Sub(start))/float64(time.Second)
 			if err == nil {
-				rpcReg.log.Infof("requestHandler success method=%s, url=%s, req=%v,resp=%v", method.MethodName, url, req, resp)
+				rpcReg.log.Infof("requestHandler success method=%s, url=%s, req=%v, resp=%v, time=%.5fs", method.MethodName, url, req, resp, latency)
 				return resp, nil
 			}
-			rpcReg.log.Errorf("requestHandler failed method=%s, url=%s, req=%v,resp=%v", method.MethodName, url, req, resp)
+			rpcReg.log.Errorf("requestHandler failed method=%s, url=%s, req=%v, resp=%v, time=%.5fs", method.MethodName, url, req, resp, latency)
 			return resp, err.(error)
 		}
 
@@ -71,11 +73,12 @@ func (rpcReg *RpcServerMgr) requestHandler(req interface{}, method *MethodInfo, 
 			result := method.Method.Call(args)
 			resp := result[0].Interface()
 			err := result[1].Interface()
+			latency := float64(time.Now().Sub(start))/float64(time.Second)
 			if err == nil {
-				rpcReg.log.Infof("requestHandler success method=%s, url=%s, req=%v,resp=%v", method.MethodName, url, req, resp)
+				rpcReg.log.Infof("requestHandler success method=%s, url=%s, req=%v, resp=%v, time=%.5fs", method.MethodName, url, req, resp, latency)
 				return resp, nil
 			}
-			rpcReg.log.Errorf("requestHandler failed method=%s, url=%s, req=%v,resp=%v", method.MethodName, url, req, resp)
+			rpcReg.log.Errorf("requestHandler failed method=%s, url=%s, req=%v, resp=%v, time=%.5fs", method.MethodName, url, req, resp, latency)
 			return resp, err.(error)
 		}
 		return interceptor(ctx, req, info, handler)
