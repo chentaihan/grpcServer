@@ -12,12 +12,9 @@
 
 ### grpc server实例
 只需要写具体实现，其他的代码都不需要写
-```import (
- 	"context"
- 	"github.com/chentaihan/grpcServer/example/pb"
- )
- 
+```
  type Ping struct {
+ 
  }
  
  //接口：/Ping/Push
